@@ -39,37 +39,33 @@ print(f"Target distribution (train):")
 print(y_train.value_counts())
 
 # MLflow setup
-mlflow.set_tracking_uri("file:./mlruns")
-mlflow.set_experiment("wine-quality-basic")
+#mlflow.set_tracking_uri("file:./mlruns")
+#mlflow.set_experiment("wine-quality-basic")
 
-# Autolog 
+# Autolog
 mlflow.sklearn.autolog()
 
-# Training with explicit run context
-with mlflow.start_run(run_name=f"RandomForest_n{n_estimators}"):
-    model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state)
-    model.fit(X_train, y_train)
+model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state)
+model.fit(X_train, y_train)
 
-    y_pred = model.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
+y_pred = model.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
 
-    # Log additional parameters
-    mlflow.log_param("data_path", data_path)
-    mlflow.log_param("test_size", test_size)
+mlflow.log_param("data_path", data_path)
+mlflow.log_param("test_size", test_size)
+mlflow.log_metric("accuracy", acc)
 
-    # Log model explicitly (required for Docker build)
-    mlflow.sklearn.log_model(
-        sk_model=model,
-        artifact_path="model",
-        registered_model_name="wine-quality-classifier"
-    )
+mlflow.sklearn.log_model(
+    sk_model=model,
+    artifact_path="model"
+)
 
-    print(f"\nAccuracy : {acc:.4f}")
-    print("\nClassification Report:")
-    print(classification_report(y_test, y_pred, target_names=["Bad Wine", "Good Wine"]))
-    print("\nMLflow run selesai. Jalankan 'mlflow ui' untuk melihat dashboard.")
+print(f"\nAccuracy : {acc:.4f}")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred, target_names=["Bad Wine", "Good Wine"]))
 
-    # Get run info untuk Docker build
-    run_id = mlflow.active_run().info.run_id
+run = mlflow.active_run()
+if run:
+    run_id = run.info.run_id
     print(f"\nRun ID: {run_id}")
     print(f"Model artifact saved at: runs:/{run_id}/model")
