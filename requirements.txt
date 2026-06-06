@@ -1,7 +1,7 @@
 # Requirements untuk Kriteria 3: Workflow CI dengan MLflow
 
 # MLflow untuk experiment tracking dan model registry
-mlflow==2.13.0
+mlflow==2.19.0
 
 # Scikit-learn untuk machine learning
 scikit-learn==1.5.1

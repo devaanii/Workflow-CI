@@ -9,7 +9,7 @@ dependencies:
   - pip
   - pip:
     - setuptools
-    - mlflow==2.13.0
+    - mlflow==2.19.0
     - scikit-learn==1.5.1
     - pandas==2.2.3
     - numpy==1.26.4

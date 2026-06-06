@@ -37,8 +37,7 @@ jobs:
           python -m pip install scikit-learn==1.5.1
           python -m pip install matplotlib==3.9.0
           python -m pip install cloudpickle==3.1.0
-          python -m pip install protobuf==4.25.3
-          python -m pip install mlflow==2.13.0
+          python -m pip install mlflow==2.19.0
           python -m pip install 'docker<7.0.0'
       
       - name: Verify MLflow installation
@@ -137,15 +136,13 @@ jobs:
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
         run: |
-          # Reinstall protobuf untuk memastikan kompatibilitas
-          python -m pip install --force-reinstall protobuf==4.25.3
-          python -m pip check
-          
           cd MLProject
           RUN_ID="${{ steps.get_run_id.outputs.run_id }}"
           MODEL_URI="runs:/$RUN_ID/model"
           
           echo "Building Docker image for model: $MODEL_URI"
+          echo "Using protobuf version:"
+          python -c "import google.protobuf; print(google.protobuf.__version__)"
           
           # Build Docker image dengan MLflow
           mlflow models build-docker -m "$MODEL_URI" -n "wine-quality-model:latest"
