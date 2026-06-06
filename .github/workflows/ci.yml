@@ -26,7 +26,7 @@ jobs:
         run: |
           python --version
           pip --version
-          which python
+          docker --version
       
       - name: Install dependencies
         run: |
@@ -49,9 +49,14 @@ jobs:
           python -c "import pkg_resources; print('pkg_resources OK')"
       
       - name: Run mlflow project
+        working-directory: MLProject
+        env:
+          MLFLOW_TRACKING_URI: "file://${{ github.workspace }}/MLProject/mlruns"
         run: |
-          cd MLProject
-          python modelling.py wine-quality-white_preprocessing.csv 100 42 0.2
+          mlflow run . \
+            --env-manager=local \
+            --experiment-name "Wine Quality Classification" \
+            -P data_path=wine-quality-white_preprocessing.csv
       
       - name: Get latest MLflow run_id
         id: get_run_id
