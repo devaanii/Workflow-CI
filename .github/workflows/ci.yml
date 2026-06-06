@@ -1,0 +1,178 @@
+name: MLflow Wine Quality Training CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  train-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python 3.12.7
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+      
+      - name: Check Env
+        run: |
+          python --version
+          pip --version
+          which python
+      
+      - name: Install dependencies
+        run: |
+          pip install mlflow==2.13.0
+          pip install scikit-learn==1.5.1
+          pip install pandas==2.2.3
+          pip install numpy==2.0.0
+          pip install matplotlib==3.9.0
+          pip install cloudpickle==3.1.0
+          pip install 'docker<7.0.0'
+      
+      - name: Run mlflow project
+        run: |
+          cd MLProject
+          python modelling.py wine-quality-white_preprocessing.csv 100 42 0.2
+      
+      - name: Get latest MLflow run_id
+        id: get_run_id
+        run: |
+          cd MLProject
+          RUN_ID=$(python -c "import mlflow; client = mlflow.tracking.MlflowClient('./mlruns'); experiment = client.get_experiment_by_name('wine-quality-basic'); runs = client.search_runs(experiment.experiment_id, order_by=['start_time DESC'], max_results=1); print(runs[0].info.run_id if runs else '')")
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Latest Run ID: $RUN_ID"
+      
+      - name: Install Python dependencies
+        run: |
+          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+      
+      - name: Upload to Google Drive
+        env:
+          GOOGLE_DRIVE_CREDENTIALS: ${{ secrets.GOOGLE_DRIVE_CREDENTIALS }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        run: |
+          cd MLProject
+          
+          # Create credentials file
+          echo "$GOOGLE_DRIVE_CREDENTIALS" > credentials.json
+          
+          # Create Python script for upload
+          cat > upload_to_drive.py << 'EOF'
+          import os
+          import pickle
+          from google.auth.transport.requests import Request
+          from google.oauth2.credentials import Credentials
+          from google_auth_oauthlib.flow import InstalledAppFlow
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+          import json
+          
+          SCOPES = ['https://www.googleapis.com/auth/drive.file']
+          
+          def upload_folder_to_drive(folder_path, parent_id=None):
+              # Load credentials
+              creds = None
+              creds_data = json.loads(os.environ['GOOGLE_DRIVE_CREDENTIALS'])
+              creds = Credentials.from_authorized_user_info(creds_data, SCOPES)
+              
+              service = build('drive', 'v3', credentials=creds)
+              
+              # Create mlruns folder in Drive
+              folder_metadata = {
+                  'name': 'mlruns',
+                  'mimeType': 'application/vnd.google-apps.folder'
+              }
+              if parent_id:
+                  folder_metadata['parents'] = [parent_id]
+              
+              folder = service.files().create(body=folder_metadata, fields='id').execute()
+              print(f"Created folder: {folder.get('id')}")
+              
+              # Upload files recursively
+              for root, dirs, files in os.walk(folder_path):
+                  for file in files:
+                      file_path = os.path.join(root, file)
+                      file_metadata = {'name': file}
+                      if parent_id:
+                          file_metadata['parents'] = [folder.get('id')]
+                      media = MediaFileUpload(file_path, resumable=True)
+                      uploaded_file = service.files().create(
+                          body=file_metadata,
+                          media_body=media,
+                          fields='id'
+                      ).execute()
+                      print(f"Uploaded: {file}")
+              
+              return folder.get('id')
+          
+          if __name__ == '__main__':
+              folder_id = os.environ.get('GOOGLE_DRIVE_FOLDER_ID')
+              upload_folder_to_drive('mlruns', folder_id)
+              print("Upload to Google Drive completed!")
+          EOF
+          
+          python upload_to_drive.py
+          
+          # Clean up
+          rm credentials.json upload_to_drive.py
+      
+      - name: Build Docker Model
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+        run: |
+          cd MLProject
+          RUN_ID="${{ steps.get_run_id.outputs.run_id }}"
+          MODEL_URI="runs:/$RUN_ID/model"
+          
+          echo "Building Docker image for model: $MODEL_URI"
+          
+          # Build Docker image dengan MLflow
+          mlflow models build-docker -m "$MODEL_URI" -n "wine-quality-model:latest"
+          
+          echo "Docker image built successfully"
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Tag Docker Image
+        run: |
+          docker tag wine-quality-model:latest ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest
+          echo "Image tagged: ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest"
+      
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest
+          echo "Docker image pushed successfully"
+      
+      - name: Post Log in to Docker Hub
+        run: |
+          echo "Docker Hub login completed"
+          echo "Image: ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest"
+      
+      - name: Post Set up Python 3.12.7
+        run: |
+          echo "Python setup completed"
+      
+      - name: Post Run actions/checkout@v3
+        run: |
+          echo "Checkout completed"
+      
+      - name: Complete job
+        run: |
+          echo "🎉 CI/CD Pipeline completed successfully!"
+          echo "✅ Model trained and tracked with MLflow"
+          echo "✅ Artifacts uploaded to Google Drive"
+          echo "✅ Docker image pushed to Docker Hub"
+          echo "Image: ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest"
