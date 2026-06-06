@@ -30,14 +30,16 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install --upgrade pip setuptools wheel
-          pip install numpy==1.26.4
-          pip install pandas==2.2.3
-          pip install scikit-learn==1.5.1
-          pip install matplotlib==3.9.0
-          pip install cloudpickle==3.1.0
-          pip install mlflow==2.13.0
-          pip install 'docker<7.0.0'
+          python -m pip install --upgrade pip
+          python -m pip install setuptools==69.0.0 wheel
+          python -m pip install numpy==1.26.4
+          python -m pip install pandas==2.2.3
+          python -m pip install scikit-learn==1.5.1
+          python -m pip install matplotlib==3.9.0
+          python -m pip install cloudpickle==3.1.0
+          python -m pip install mlflow==2.13.0
+          python -m pip install 'docker<7.0.0'
+          python -c "import pkg_resources; print('pkg_resources available')"
       
       - name: Run mlflow project
         run: |
