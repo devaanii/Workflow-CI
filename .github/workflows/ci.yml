@@ -177,23 +177,28 @@ jobs:
       
       - name: Build Docker Model
         run: |
-          # Pin urllib3 1.26.20 dan install docker dengan no-deps
-          python -m pip install urllib3==1.26.20
-          python -m pip install docker==7.1.0 requests==2.32.3 urllib3 packaging websocket-client
-          
-          # Verify versions
-          python -c "import urllib3; print(f'urllib3: {urllib3.__version__}')"
-          python -c "import docker; print(f'docker: {docker.__version__}')"
-          
-          cd MLProject
-          RUN_ID="${{ steps.get_run_id.outputs.run_id }}"
-          MODEL_URI="runs:/$RUN_ID/model"
-          
-          echo "Building Docker image for model: $MODEL_URI"
-          
-          # Build Docker image dengan MLflow
-          mlflow models build-docker -m "$MODEL_URI" -n "wine-quality-model:latest"
-          
+          python -m pip install --upgrade pip
+          python -m pip install mlflow==2.19.0 docker==7.1.0 "requests>=2.33,<3" urllib3 packaging websocket-client
+
+          echo "RUN_ID=${{ env.RUN_ID }}"
+          echo "RUN_DIR=${{ env.RUN_DIR }}"
+
+          ART="${{ env.RUN_DIR }}/artifacts/model"
+
+          echo "Building Docker image from artifact path: $ART"
+
+          if [ ! -d "$ART" ]; then
+            echo "Model artifact folder tidak ditemukan: $ART"
+            echo "Isi folder run:"
+            ls -R "${{ env.RUN_DIR }}"
+            exit 1
+          fi
+
+          mlflow models build-docker \
+            -m "$ART" \
+            -n "wine-quality-model:latest" \
+            --env-manager=local
+
           echo "Docker image built successfully"
       
       - name: Log in to Docker Hub
