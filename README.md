@@ -59,8 +59,8 @@ Workflow-CI-Devani/
 
 ### Prerequisites
 
-- Python 3.9+
-- MLflow 2.13.0+
+- Python 3.12.7 (lokal opsional 3.9+; CI menggunakan 3.12.7)
+- MLflow 2.19.0
 - GitHub Repository
 - Docker Hub Account
 - Google Drive API Credentials
@@ -341,17 +341,16 @@ curl -X POST http://localhost:5000/invocations \
 - **Tracking**: MLflow dengan autolog
 
 ### Expected Performance
-
 - **Accuracy**: ~75-80%
 - **Training Time**: ~5-10 detik
 - **Model Size**: ~5-10 MB
 
 ## 📚 Teknologi
 
-- **MLflow 2.13.0**: Experiment tracking & model registry
+- **MLflow 2.19.0**: Experiment tracking & model registry
 - **Scikit-learn 1.5.1**: Machine learning library
 - **Pandas 2.2.3**: Data manipulation
-- **NumPy 2.0.0**: Numerical computing
+- **NumPy 1.26.4**: Numerical computing
 - **GitHub Actions**: CI/CD automation
 - **Docker**: Containerization
 - **Docker Hub**: Image registry
@@ -370,7 +369,7 @@ curl -X POST http://localhost:5000/invocations \
 
 **Solusi**:
 1. Pastikan model berhasil di-log dengan `mlflow.sklearn.log_model()`
-2. Verifikasi run_id valid dengan: `mlflow runs list --experiment-name wine-quality-basic`
+2. Verifikasi run_id valid dengan: `mlflow runs list --experiment-name "Wine Quality Classification"`
 3. Check Docker daemon status di GitHub Actions runner
 
 ### Model Prediction Error
