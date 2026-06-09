@@ -1,4 +1,4 @@
-name: MLflow Wine Quality Training CI/CD
+name: MLflow Breast Cancer Training CI/CD
 
 on:
   push:
@@ -55,8 +55,8 @@ jobs:
         run: |
           mlflow run . \
             --env-manager=local \
-            --experiment-name "Wine Quality Classification" \
-            -P data_path=wine-quality-white_preprocessing.csv
+            --experiment-name "Breast Cancer Classification" \
+            -P data_path=breast-cancer_preprocessing.csv
       
       - name: Get latest MLflow run_id
         id: get_run
@@ -68,10 +68,10 @@ jobs:
           from mlflow.tracking import MlflowClient
 
           client = MlflowClient()
-          experiment = client.get_experiment_by_name("Wine Quality Classification")
+          experiment = client.get_experiment_by_name("Breast Cancer Classification")
 
           if experiment is None:
-              raise RuntimeError("Experiment 'Wine Quality Classification' tidak ditemukan.")
+              raise RuntimeError("Experiment 'Breast Cancer Classification' tidak ditemukan.")
 
           runs = client.search_runs(
               experiment_ids=[experiment.experiment_id],
@@ -196,7 +196,7 @@ jobs:
 
           mlflow models build-docker \
             -m "$ART" \
-            -n "wine-quality-model:latest" \
+            -n "breast-cancer-model:latest" \
             --env-manager=local
 
           echo "Docker image built successfully"
@@ -209,18 +209,18 @@ jobs:
       
       - name: Tag Docker Image
         run: |
-          docker tag wine-quality-model:latest ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest
-          echo "Image tagged: ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest"
+          docker tag breast-cancer-model:latest ${{ secrets.DOCKERHUB_USERNAME }}/breast-cancer-model:latest
+          echo "Image tagged: ${{ secrets.DOCKERHUB_USERNAME }}/breast-cancer-model:latest"
       
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/breast-cancer-model:latest
           echo "Docker image pushed successfully"
       
       - name: Post Log in to Docker Hub
         run: |
           echo "Docker Hub login completed"
-          echo "Image: ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest"
+          echo "Image: ${{ secrets.DOCKERHUB_USERNAME }}/breast-cancer-model:latest"
       
       - name: Post Set up Python 3.12.7
         run: |
@@ -236,4 +236,4 @@ jobs:
           echo "✅ Model trained and tracked with MLflow"
           echo "✅ Artifacts uploaded to Google Drive"
           echo "✅ Docker image pushed to Docker Hub"
-          echo "Image: ${{ secrets.DOCKERHUB_USERNAME }}/wine-quality-model:latest"
+          echo "Image: ${{ secrets.DOCKERHUB_USERNAME }}/breast-cancer-model:latest"

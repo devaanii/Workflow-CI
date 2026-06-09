@@ -1,11 +1,11 @@
-name: wine-quality-training
+name: breast-cancer-training
 
 conda_env: conda.yaml
 
 entry_points:
   main:
     parameters:
-      data_path: {type: string, default: "wine-quality-white_preprocessing.csv"}
+      data_path: {type: string, default: "breast-cancer_preprocessing.csv"}
       n_estimators: {type: int, default: 100}
       random_state: {type: int, default: 42}
       test_size: {type: float, default: 0.2}

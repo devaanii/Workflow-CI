@@ -1,4 +1,4 @@
-name: mlflow-wine-quality-env
+name: mlflow-breast-cancer-env
 
 channels:
   - conda-forge

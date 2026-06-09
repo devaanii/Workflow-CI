@@ -1,11 +1,11 @@
-# Workflow-CI: Wine Quality Model Training with MLflow
+# Workflow-CI: Breast Cancer Model Training with MLflow
 
-Repository ini merupakan implementasi **Kriteria 3** dari submission Machine Learning Terapan untuk mendemonstrasikan workflow CI/CD menggunakan MLflow Project dan GitHub Actions.
+Repository ini merupakan implementasi **Kriteria 3** dari submission Membangun Sistem Machine Learning untuk mendemonstrasikan workflow CI/CD menggunakan MLflow Project dan GitHub Actions.
 
 ## 📋 Deskripsi
 
 Project ini mengimplementasikan pipeline otomatis untuk:
-- 🍷 Training model RandomForestClassifier untuk klasifikasi kualitas wine
+- 🩺 Training model RandomForestClassifier untuk klasifikasi diagnosis breast cancer
 - 📊 Tracking eksperimen dengan MLflow
 - 🔄 CI/CD automation dengan GitHub Actions
 - ☁️ Upload artifacts ke Google Drive
@@ -15,7 +15,7 @@ Project ini mengimplementasikan pipeline otomatis untuk:
 ## 📁 Struktur Folder
 
 ```
-Workflow-CI-Devani/
+Workflow-CI/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                                # GitHub Actions workflow
@@ -23,15 +23,14 @@ Workflow-CI-Devani/
 │   ├── modelling.py                             # Script training model
 │   ├── conda.yaml                               # Dependency environment
 │   ├── MLProject                                # MLflow Project config (tanpa ekstensi)
-│   ├── wine-quality-white_preprocessing.csv     # Dataset preprocessing
+│   ├── breast-cancer_preprocessing.csv          # Dataset preprocessing
 │   ├── mlruns/                                  # MLflow tracking artifacts (auto-generated)
-│   └── docker_hub_link.txt                      # Link Docker Hub image (auto-generated)
+│   └── docker_hub_link.txt                      # Link Docker Hub image
 ├── README.md
 └── requirements.txt
 ```
 
 ## 🚀 Fitur Utama
-
 1. **MLflow Project Setup** ✅
    - Konfigurasi MLProject dengan parameterized entry points
    - Conda environment untuk reproducibility
@@ -67,8 +66,8 @@ Workflow-CI-Devani/
 
 ```bash
 # Clone repository
-git clone https://github.com/<USERNAME>/Workflow-CI-Devani.git
-cd Workflow-CI-Devani
+git clone https://github.com/devaanii/Workflow-CI.git
+cd Workflow-CI
 
 # Install dependencies
 pip install -r requirements.txt
@@ -83,11 +82,7 @@ mlflow ui
 
 ### Setup GitHub Actions
 
-#### 1. Buat GitHub Repository
-
-Buat repository baru bernama `Workflow-CI-Devani` dengan visibilitas **Public**.
-
-#### 2. Setup GitHub Secrets
+#### 1. Setup GitHub Secrets
 
 Pergi ke `Settings > Secrets and variables > Actions` dan tambahkan secrets berikut:
 
@@ -99,7 +94,7 @@ Pergi ke `Settings > Secrets and variables > Actions` dan tambahkan secrets beri
 - `GOOGLE_DRIVE_CREDENTIALS`: Credentials JSON dari Google Cloud
 - `GOOGLE_DRIVE_FOLDER_ID`: ID folder Google Drive tujuan
 
-#### 3. Mendapatkan Docker Hub Token
+#### 2. Mendapatkan Docker Hub Token
 
 1. Login ke [Docker Hub](https://hub.docker.com/)
 2. Klik profile > Account Settings
@@ -107,49 +102,24 @@ Pergi ke `Settings > Secrets and variables > Actions` dan tambahkan secrets beri
 4. Beri nama token (misal: `github-actions`)
 5. Copy token dan simpan sebagai GitHub Secret `DOCKERHUB_TOKEN`
 
-#### 4. Mendapatkan Google Drive Credentials
-
-1. Buka [Google Cloud Console](https://console.cloud.google.com/)
-2. Buat project baru atau pilih existing project
-3. Enable Google Drive API
-4. Buat OAuth 2.0 credentials
-5. Download credentials JSON
-6. Authorize aplikasi dan dapatkan refresh token
-7. Format credentials sebagai JSON dan simpan ke `GOOGLE_DRIVE_CREDENTIALS`
-
-Format credentials:
-```json
-{
-  "token": "YOUR_ACCESS_TOKEN",
-  "refresh_token": "YOUR_REFRESH_TOKEN",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "client_id": "YOUR_CLIENT_ID",
-  "client_secret": "YOUR_CLIENT_SECRET",
-  "scopes": ["https://www.googleapis.com/auth/drive.file"]
-}
-```
-
-#### 5. Push ke GitHub
+#### 3. Push ke GitHub
 
 ```bash
-git init
 git add .
-git commit -m "Initial commit - MLflow CI/CD Wine Quality"
-git branch -M main
-git remote add origin https://github.com/<USERNAME>/Workflow-CI-Devani.git
-git push -u origin main
+git commit -m "MLflow CI/CD Breast Cancer"
+git push origin main
 ```
 
 ## 📊 Parameter MLflow Project
 
 File `MLProject` mendukung parameter berikut:
 
-| Parameter      | Type  | Default                              | Deskripsi                    |
-|----------------|-------|--------------------------------------|------------------------------|
-| `data_path`    | str   | `wine-quality-white_preprocessing.csv` | Path ke dataset            |
-| `n_estimators` | int   | 100                                  | Jumlah trees di Random Forest|
-| `random_state` | int   | 42                                   | Seed untuk reproducibility   |
-| `test_size`    | float | 0.2                                  | Proporsi data test           |
+| Parameter      | Type  | Default                            | Deskripsi                    |
+|----------------|-------|------------------------------------|------------------------------|
+| `data_path`    | str   | `breast-cancer_preprocessing.csv`  | Path ke dataset              |
+| `n_estimators` | int   | 100                                | Jumlah trees di Random Forest|
+| `random_state` | int   | 42                                 | Seed untuk reproducibility   |
+| `test_size`    | float | 0.2                                | Proporsi data test           |
 
 ### Contoh Custom Run
 
@@ -161,24 +131,20 @@ mlflow run . --env-manager=local
 mlflow run . --env-manager=local \
   -P n_estimators=200 \
   -P test_size=0.25
-
-# Run dari GitHub
-mlflow run https://github.com/<USERNAME>/Workflow-CI-Devani.git \
-  -P n_estimators=150
 ```
 
 ## 🐳 Docker Image
 
-Docker image yang dihasilkan dapat diakses di Docker Hub.
+Docker image yang dihasilkan dapat diakses di Docker Hub: `devaanii/breast-cancer-model`.
 
 ### Menggunakan Docker Image
 
 ```bash
 # Pull image dari Docker Hub
-docker pull <USERNAME>/wine-quality-model:latest
+docker pull devaanii/breast-cancer-model:latest
 
 # Run model server
-docker run -p 5000:8080 <USERNAME>/wine-quality-model:latest
+docker run -p 5000:8080 devaanii/breast-cancer-model:latest
 
 # Test prediction via API
 curl -X POST http://localhost:5000/invocations \
@@ -186,11 +152,14 @@ curl -X POST http://localhost:5000/invocations \
   -d '{
     "dataframe_split": {
       "columns": [
-        "fixed_acidity", "volatile_acidity", "citric_acid", 
-        "residual_sugar", "chlorides", "free_sulfur_dioxide",
-        "total_sulfur_dioxide", "density", "pH", "sulphates", "alcohol"
+        "mean radius", "mean texture", "mean perimeter", "mean area", "mean smoothness",
+        "mean compactness", "mean concavity", "mean concave points", "mean symmetry", "mean fractal dimension",
+        "radius error", "texture error", "perimeter error", "area error", "smoothness error",
+        "compactness error", "concavity error", "concave points error", "symmetry error", "fractal dimension error",
+        "worst radius", "worst texture", "worst perimeter", "worst area", "worst smoothness",
+        "worst compactness", "worst concavity", "worst concave points", "worst symmetry", "worst fractal dimension"
       ],
-      "data": [[7.0, 0.27, 0.36, 20.7, 0.045, 45.0, 170.0, 1.001, 3.0, 0.45, 8.8]]
+      "data": [[17.99, 10.38, 122.8, 1001.0, 0.1184, 0.2776, 0.3001, 0.1471, 0.2419, 0.0787, 1.095, 0.9053, 8.589, 153.4, 0.0064, 0.049, 0.0537, 0.0159, 0.03, 0.0062, 25.38, 17.33, 184.6, 2019.0, 0.1622, 0.6656, 0.7119, 0.2654, 0.4601, 0.1189]]
     }
   }'
 ```
@@ -198,11 +167,11 @@ curl -X POST http://localhost:5000/invocations \
 Response example:
 ```json
 {
-  "predictions": [1]
+  "predictions": [0]
 }
 ```
-- `0` = Bad Wine (quality < 6)
-- `1` = Good Wine (quality >= 6)
+- `0` = Malignant (ganas)
+- `1` = Benign (jinak)
 
 ## 📈 Workflow CI/CD
 
@@ -214,96 +183,28 @@ Workflow akan berjalan otomatis ketika:
 
 ### Pipeline Steps
 
-Workflow ini mengimplementasikan semua tahapan untuk kriteria **Advanced**:
-
-1. ✅ **Set up job** - Initialize runner
-2. ✅ **Run actions/checkout@v3** - Checkout repository
-3. ✅ **Set up Python 3.12.7** - Setup Python environment
-4. ✅ **Check Env** - Verify Python installation
-5. ✅ **Install dependencies** - Install MLflow, scikit-learn, pandas, dll
-6. ✅ **Run mlflow project** - Execute training dengan modelling.py
-7. ✅ **Get latest MLflow run_id** - Extract run ID untuk Docker build
-8. ✅ **Install Python dependencies** - Install Google Drive libraries
-9. ✅ **Upload to Google Drive** - Upload artifacts ke cloud storage
-10. ✅ **Build Docker Model** - Build image dengan `mlflow models build-docker`
-11. ✅ **Log in to Docker Hub** - Authenticate ke Docker Hub
-12. ✅ **Tag Docker Image** - Tag image dengan username/repo:latest
-13. ✅ **Push Docker Image** - Push ke Docker Hub registry
-14. ✅ **Post Log in to Docker Hub** - Confirmation log
-15. ✅ **Post Set up Python 3.12.7** - Cleanup log
-16. ✅ **Post Run actions/checkout@v3** - Cleanup log
-17. ✅ **Complete job** - Final summary
-
-### Monitoring Workflow
-
-1. Pergi ke repository GitHub
-2. Klik tab `Actions`
-3. Pilih workflow run terbaru
-4. Lihat logs untuk setiap step
-5. Verifikasi artifacts di Google Drive dan Docker Hub
-
-
-## 🔍 Verifikasi
-
-### Cek Training Results
-
-Setelah workflow selesai:
-```bash
-# Clone repository
-git clone https://github.com/<USERNAME>/Workflow-CI-Devani.git
-cd Workflow-CI-Devani/MLProject
-
-# View MLflow UI
-mlflow ui
-```
-
-Buka browser: http://localhost:5000
-
-### Cek Google Drive
-
-1. Buka Google Drive
-2. Pergi ke folder yang ditentukan di `GOOGLE_DRIVE_FOLDER_ID`
-3. Lihat folder `mlruns` dengan semua artifacts
-
-### Cek Docker Hub
-
-1. Login ke [Docker Hub](https://hub.docker.com/)
-2. Pergi ke repository `<USERNAME>/wine-quality-model`
-3. Lihat image dengan tag `latest`
-4. Verifikasi image size, build date, dan metadata
-
-### Test Docker Image
-
-```bash
-# Pull dan run image
-docker pull <USERNAME>/wine-quality-model:latest
-docker run -p 5000:8080 <USERNAME>/wine-quality-model:latest
-
-# Di terminal lain, test prediction
-curl -X POST http://localhost:5000/invocations \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "dataframe_split": {
-      "columns": [
-        "fixed_acidity", "volatile_acidity", "citric_acid", 
-        "residual_sugar", "chlorides", "free_sulfur_dioxide",
-        "total_sulfur_dioxide", "density", "pH", "sulphates", "alcohol"
-      ],
-      "data": [[7.0, 0.27, 0.36, 20.7, 0.045, 45.0, 170.0, 1.001, 3.0, 0.45, 8.8]]
-    }
-  }'
-```
+1. ✅ Set up job
+2. ✅ Checkout repository
+3. ✅ Set up Python 3.12.7
+4. ✅ Check Env
+5. ✅ Install dependencies (MLflow, scikit-learn, pandas, dll)
+6. ✅ Run mlflow project (training dengan modelling.py)
+7. ✅ Get latest MLflow run_id
+8. ✅ Upload artifacts ke Google Drive
+9. ✅ Build Docker image dengan `mlflow models build-docker`
+10. ✅ Push Docker image ke Docker Hub
+11. ✅ Complete job
 
 ## 🎯 Dataset & Model
 
-### Dataset: Wine Quality (White Wine)
+### Dataset: Breast Cancer Wisconsin (Diagnostic)
 
-- **Source**: UCI Machine Learning Repository
-- **Samples**: 4898 rows
-- **Features**: 11 features (fixed acidity, volatile acidity, citric acid, dll)
+- **Source**: UCI Machine Learning Repository (juga via scikit-learn)
+- **Samples**: 569 baris
+- **Features**: 30 fitur numerik (mean/standard error/worst dari radius, texture, perimeter, dll)
 - **Target**: Binary classification
-  - `0` = Bad Wine (original quality < 6)
-  - `1` = Good Wine (original quality >= 6)
+  - `0` = Malignant (ganas)
+  - `1` = Benign (jinak)
 - **Preprocessing**: Sudah dilakukan di tahap Kriteria 1
 
 ### Model Details
@@ -313,13 +214,8 @@ curl -X POST http://localhost:5000/invocations \
   - `n_estimators`: 100
   - `random_state`: 42
   - `test_size`: 0.2
-- **Metrics**: Accuracy, Precision, Recall, F1-Score
+- **Metrics**: Accuracy
 - **Tracking**: MLflow dengan autolog
-
-### Expected Performance
-- **Accuracy**: ~75-80%
-- **Training Time**: ~5-10 detik
-- **Model Size**: ~5-10 MB
 
 ## 📚 Teknologi
 
@@ -332,23 +228,17 @@ curl -X POST http://localhost:5000/invocations \
 - **Docker Hub**: Image registry
 - **Google Drive API**: Cloud storage
 
-
 ## 👨‍💻 Author
 
 **Nama**: Devani  
 **Program**: Dicoding x IBM - Membangun Sistem Machine Learning  
-**Kriteria**: 3 - Membuat Workflow CI   
-**Dataset**: Wine Quality (White Wine)
-
-## 📄 License
-
-Project ini dibuat untuk keperluan submission program Dicoding x IBM.
-
----
+**Kriteria**: 3 - Membuat Workflow CI  
+**Target**: Advance (4 points)  
+**Dataset**: Breast Cancer Wisconsin (Diagnostic)
 
 ## 📌 Important Links
 
-- **GitHub Repository**: `https://github.com/<USERNAME>/Workflow-CI-Devani`
-- **Docker Hub**: `https://hub.docker.com/r/<USERNAME>/wine-quality-model`
+- **GitHub Repository**: `https://github.com/devaanii/Workflow-CI`
+- **Docker Hub**: `https://hub.docker.com/r/devaanii/breast-cancer-model`
 - **MLflow Docs**: https://mlflow.org/docs/latest/index.html
 - **GitHub Actions Docs**: https://docs.github.com/en/actions

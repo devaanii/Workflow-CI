@@ -1,4 +1,4 @@
-# Melatih model RandomForestClassifier dengan MLflow autolog untuk Wine Quality Classification
+# Melatih model RandomForestClassifier dengan MLflow autolog untuk Breast Cancer Classification
 
 import os
 import sys
@@ -14,7 +14,7 @@ import mlflow
 import mlflow.sklearn
 
 # Parse command line arguments
-data_path = sys.argv[1] if len(sys.argv) > 1 else "wine-quality-white_preprocessing.csv"
+data_path = sys.argv[1] if len(sys.argv) > 1 else "breast-cancer_preprocessing.csv"
 n_estimators = int(sys.argv[2]) if len(sys.argv) > 2 else 100
 random_state = int(sys.argv[3]) if len(sys.argv) > 3 else 42
 test_size = float(sys.argv[4]) if len(sys.argv) > 4 else 0.2
@@ -24,9 +24,9 @@ print(f"Parameters: data_path={data_path}, n_estimators={n_estimators}, random_s
 # Load dataset 
 df = pd.read_csv(data_path)
 
-# Dataset sudah dibinarisasi dari preprocessing (quality >= 6 = 1, < 6 = 0)
-X = df.drop(columns=["quality"])
-y = df["quality"]
+# Dataset Breast Cancer Wisconsin (target biner: 0 = malignant, 1 = benign)
+X = df.drop(columns=["target"])
+y = df["target"]
 
 # Split data 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -40,7 +40,7 @@ print(y_train.value_counts())
 
 # MLflow setup
 #mlflow.set_tracking_uri("file:./mlruns")
-#mlflow.set_experiment("wine-quality-basic")
+#mlflow.set_experiment("breast-cancer-basic")
 
 # Autolog
 mlflow.sklearn.autolog()
@@ -62,7 +62,7 @@ mlflow.sklearn.log_model(
 
 print(f"\nAccuracy : {acc:.4f}")
 print("\nClassification Report:")
-print(classification_report(y_test, y_pred, target_names=["Bad Wine", "Good Wine"]))
+print(classification_report(y_test, y_pred, target_names=["Malignant", "Benign"]))
 
 run = mlflow.active_run()
 if run:
