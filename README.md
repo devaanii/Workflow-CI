@@ -32,8 +32,6 @@ Workflow-CI-Devani/
 
 ## 🚀 Fitur Utama
 
-### ✅ Level Advance (4 Points)
-
 1. **MLflow Project Setup** ✅
    - Konfigurasi MLProject dengan parameterized entry points
    - Conda environment untuk reproducibility
@@ -244,28 +242,6 @@ Workflow ini mengimplementasikan semua tahapan untuk kriteria **Advanced**:
 4. Lihat logs untuk setiap step
 5. Verifikasi artifacts di Google Drive dan Docker Hub
 
-## 📝 Kriteria Penilaian
-
-| Level      | Poin | Status | Deskripsi                                          |
-|------------|------|--------|----------------------------------------------------|
-| Reject     | 0    | ❌     | Tidak ada folder MLProject atau workflow CI        |
-| Basic      | 2    | ✅     | MLProject + CI yang bisa melatih model             |
-| Skilled    | 3    | ✅     | Basic + menyimpan artifacts ke Google Drive        |
-| **Advance**| **4**| **✅** | **Skilled + Docker image ke Docker Hub**           |
-
-### Checklist Kriteria Advance
-
-- [x] Folder MLProject dengan struktur lengkap
-- [x] File MLProject (tanpa ekstensi) dengan entry points
-- [x] File conda.yaml dengan dependencies
-- [x] File modelling.py yang dapat dijalankan
-- [x] Dataset preprocessing (wine-quality-white_preprocessing.csv)
-- [x] GitHub Actions workflow (.github/workflows/ci.yml)
-- [x] Upload artifacts ke repository eksternal (Google Drive)
-- [x] Build Docker image dengan `mlflow models build-docker`
-- [x] Push Docker image ke Docker Hub
-- [x] Repository GitHub dengan visibilitas Public
-- [x] Menggunakan GitHub Secrets untuk credentials
 
 ## 🔍 Verifikasi
 
@@ -356,35 +332,12 @@ curl -X POST http://localhost:5000/invocations \
 - **Docker Hub**: Image registry
 - **Google Drive API**: Cloud storage
 
-## 🔧 Troubleshooting
-
-### Workflow Gagal di Step "Upload to Google Drive"
-
-**Solusi**:
-1. Pastikan `GOOGLE_DRIVE_CREDENTIALS` berisi credentials yang valid
-2. Pastikan `GOOGLE_DRIVE_FOLDER_ID` adalah ID folder yang benar
-3. Verifikasi folder memiliki permission untuk write
-
-### Docker Build Gagal
-
-**Solusi**:
-1. Pastikan model berhasil di-log dengan `mlflow.sklearn.log_model()`
-2. Verifikasi run_id valid dengan: `mlflow runs list --experiment-name "Wine Quality Classification"`
-3. Check Docker daemon status di GitHub Actions runner
-
-### Model Prediction Error
-
-**Solusi**:
-1. Pastikan input features sesuai urutan dan jumlah (11 features)
-2. Gunakan format JSON `dataframe_split` yang benar
-3. Verifikasi semua fitur numerik, tidak ada missing values
 
 ## 👨‍💻 Author
 
 **Nama**: Devani  
 **Program**: Dicoding x IBM - Membangun Sistem Machine Learning  
-**Kriteria**: 3 - Membuat Workflow CI  
-**Target**: Advance (4 points)  
+**Kriteria**: 3 - Membuat Workflow CI   
 **Dataset**: Wine Quality (White Wine)
 
 ## 📄 License
@@ -392,9 +345,6 @@ curl -X POST http://localhost:5000/invocations \
 Project ini dibuat untuk keperluan submission program Dicoding x IBM.
 
 ---
-
-**Created**: June 6, 2026  
-**Last Updated**: June 6, 2026
 
 ## 📌 Important Links
 
